@@ -1,0 +1,82 @@
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.contrib import messages, auth
+from django.contrib.auth.models import User
+from .models import Profile
+from django.contrib.auth.decorators import login_required
+# Create your views here.
+
+@login_required(login_url='signin')
+def index(request):
+    return render(request, 'index.html')
+
+def signup(request):
+    if request.method == 'POST':
+        
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        password_confirm = request.POST.get('password-confirm')
+        
+        if not all([username, email, password, password_confirm]):
+            messages.info(request, "All fields are required")
+            return redirect('signup')
+        # assert (password == password_confirm), messages.info(request, "Password isn't equal"); return redirect('signup.html')
+        
+        if password != password_confirm:
+            messages.info(request, "Passwords do not match")
+            return redirect('signup')
+        elif User.objects.filter(email=email).exists():
+            messages.info(request, "Email is taken")
+            return redirect('signup')
+        elif User.objects.filter(username=username).exists():
+            messages.info(request, "Username is taken")
+            return redirect('signup')
+        else:
+            user = User.objects.create_user(username=username, email=email, password=password)
+            user.save()  
+    
+            messages.success(request, "User created successfully")
+    
+
+            # Creation of user profile
+            user_model = User.objects.get(username=username)
+            new_profile = Profile.objects.create(user=user_model, id_user =user_model.id)
+    return render(request, 'signup.html')
+
+def signin(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = auth.authenticate(username=username, password=password)
+
+        if user is None:
+            messages.info(request, "User doesn't exist")
+            return redirect('signup')
+        
+        else:
+            auth.login(request, user)
+            return redirect('/')
+
+        """
+        Tried to do it on my own at first but this is way more insecure than using it 
+        if not all([username, password]):
+            messages.info(request, "All fields are required")
+            redirect('signup')
+
+        if(
+            User.objects.filter(username=username, password=password)
+        ):
+            pass
+        
+        else:
+            messages.error(request, "Wrong credentials")
+        """   
+    
+    return render(request, "signin.html")
+
+@login_required(login_url='signin')
+def signout(request):
+    auth.logout(request)
+    return redirect('signin')
