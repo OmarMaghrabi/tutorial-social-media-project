@@ -31,3 +31,5 @@ db.sqlite3
 
 # Media
 media/profile_images/*
+
+test.py

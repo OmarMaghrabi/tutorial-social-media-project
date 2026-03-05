@@ -11,6 +11,10 @@ def index(request):
     return render(request, 'index.html', {'user_profile': user_profile})
 
 @login_required(login_url='signin')
+def upload(request):
+    pass
+
+@login_required(login_url='signin')
 def settings(request):
     user_profile = Profile.objects.get(user=request.user)
     
