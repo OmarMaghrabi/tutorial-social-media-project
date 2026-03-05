@@ -4,11 +4,14 @@ from django.contrib import messages, auth
 from django.contrib.auth.models import User
 from .models import Profile
 from django.contrib.auth.decorators import login_required
-# Create your views here.
 
 @login_required(login_url='signin')
 def index(request):
     return render(request, 'index.html')
+
+@login_required(login_url='signin')
+def settings(request):
+    return render(request, 'settings.html')
 
 def signup(request):
     if request.method == 'POST':
@@ -42,6 +45,12 @@ def signup(request):
             # Creation of user profile
             user_model = User.objects.get(username=username)
             new_profile = Profile.objects.create(user=user_model, id_user =user_model.id)
+
+            user_login = auth.authenticate(username=username, password=password)
+            auth.login()
+
+            return redirect('settings')
+        
     return render(request, 'signup.html')
 
 def signin(request):
