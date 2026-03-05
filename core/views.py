@@ -7,11 +7,29 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url='signin')
 def index(request):
-    return render(request, 'index.html')
+    user_profile = Profile.objects.get(user=request.user)
+    return render(request, 'index.html', {'user_profile': user_profile})
 
 @login_required(login_url='signin')
 def settings(request):
-    return render(request, 'settings.html')
+    user_profile = Profile.objects.get(user=request.user)
+    
+    if request.method == 'POST':
+        new_image = request.FILES.get('image')
+        
+        bio = request.POST.get('bio')
+        location = request.POST.get('location')
+
+        if new_image:
+            user_profile.profileimg = new_image
+            
+        user_profile.bio = bio
+        user_profile.location = location
+
+        user_profile.save()
+        return redirect('settings')
+        
+    return render(request, 'settings.html', {'user_profile': user_profile})
 
 def signup(request):
     if request.method == 'POST':
@@ -47,7 +65,7 @@ def signup(request):
             new_profile = Profile.objects.create(user=user_model, id_user =user_model.id)
 
             user_login = auth.authenticate(username=username, password=password)
-            auth.login()
+            auth.login(request, user_login)
 
             return redirect('settings')
         
@@ -59,9 +77,9 @@ def signin(request):
         password = request.POST.get('password')
         
         user = auth.authenticate(username=username, password=password)
-
+        
         if user is None:
-            messages.info(request, "User doesn't exist")
+            messages.info(request, "Invalid credentials")
             return redirect('signup')
         
         else:

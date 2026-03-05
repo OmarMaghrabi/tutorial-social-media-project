@@ -3,7 +3,21 @@
 
 {% block "title"%}Settings{% endblock %}
 
+{% block "topbar" %}
+<div class="bg-white py-4 shadow dark:bg-gray-800">
+    <div class="max-w-6xl mx-auto">
 
+            <div class="flex items-center lg:justify-between justify-around">
+
+                    <a href={%url "index"%}>
+                        <b><h1 style="font-size: 1.5rem;">Social Book</h1></b>
+                    </a>
+                    
+            </div>
+    </div>
+</div>
+
+{% endblock %}
 {% block "content"%}
             <div class="container m-auto"> 
 
@@ -19,9 +33,11 @@
                     <li><a href="#">Security</a></li>
                 </ul>
                 -->
-                <br></br>
-                <hr></hr>
-
+            <br></br>
+            <hr></hr>
+                
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
                 <div class="grid lg:grid-cols-3 mt-12 gap-8">
                     <div>
                         <h3 class="text-xl mb-2"> Basic</h3>
@@ -30,42 +46,40 @@
                     <div class="bg-white rounded-md lg:shadow-lg shadow col-span-2">
     
                        <div class="grid grid-cols-2 gap-3 lg:p-6 p-4">
-                           <div>
-                               <label for=""> First name</label>
-                               <input type="text" placeholder="Your name.." class="shadow-none bg-gray-100">
-                           </div>
-                           <div>
-                               <label for=""> Last name</label>
-                               <input type="text" placeholder="Your name.." class="shadow-none bg-gray-100">
+                            <div class="col-span-2">
+                                <label for=""> Profile Image</label>
+                                {% if user_profile.profileimg %}
+                                <img src="{{user_profile.profileimg.url}}" class="w-20 h-20 rounded-full mb-2" />
+                                {% else %}
+                                 <p class="text-sm text-gray-400">No profile image set.</p>
+                                {% endif %}
+                                <input type="file" name="image":value="{{user_profile.profileimg}}" class="shadow-none bg-gray-100">
                             </div>
                             <div class="col-span-2">
-                                <label for=""> Email</label>
-                                <input type="text" placeholder="Your name.." class="shadow-none bg-gray-100">
-                            </div>
-                            <div class="col-span-2">
-                                <label for="about">About me</label>  
-                                <textarea id="about" name="about" rows="3"  class="shadow-none bg-gray-100"></textarea>
+                                <label for="about">Bio</label>  
+                                <textarea id="about" name="bio" rows="3"  class="shadow-none bg-gray-100">{{user_profile.bio}}</textarea>
                             </div> 
                             <div class="col-span-2">
                                 <label for=""> Location</label>
-                                <input type="text" placeholder="" class="shadow-none bg-gray-100">
+                                <input type="text" name="location" value="{{user_profile.location}}" class="shadow-none bg-gray-100">
                             </div>
                        </div> 
     
                        <div class="bg-gray-10 p-6 pt-0 flex justify-end space-x-3">
-                           <button class="p-2 px-4 rounded bg-gray-50 text-red-500"> Cancel </button>
-                           <button type="button" class="button bg-blue-700"> Save </button>
+                           <button class="p-2 px-4 rounded bg-gray-50 text-red-500"> <a href={% url "index" %}>Cancel </a></button>
+                           <button type="submit" class="button bg-blue-700"> Save </button>
                        </div>
     
                     </div>
                 </div>
+            </form>
             </div>
 
-                    {% endblock %}
+{% endblock %}
 
  <!-- Scripts
     ================================================== -->
-    {% block "scripts" %}
+{% block "scripts" %}
 
     <script src="{% static 'assets/js/tippy.all.min.js' %}"></script>  
     <script src="{% static 'assets/js/jquery-3.3.1.min.js' %}"></script>
